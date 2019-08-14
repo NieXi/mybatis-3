@@ -35,7 +35,9 @@ import org.apache.ibatis.session.Configuration;
  */
 public class BoundSql {
 
+  // sql 带有 ? 占位符
   private final String sql;
+  // 参数列表
   private final List<ParameterMapping> parameterMappings;
   private final Object parameterObject;
   private final Map<String, Object> additionalParameters;

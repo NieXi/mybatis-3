@@ -51,6 +51,8 @@ public class XMLIncludeTransformer {
   }
 
   /**
+   * 有递归，解析 include 参考图片 https://my.oschina.net/zudajun/blog/687326
+   * sqlFragment 子节点是 TextNode 就是真正的 SQL 语句
    * Recursively apply includes through all SQL fragments.
    * @param source Include node in DOM tree
    * @param variablesContext Current context for static variables with values
@@ -67,6 +69,7 @@ public class XMLIncludeTransformer {
       while (toInclude.hasChildNodes()) {
         toInclude.getParentNode().insertBefore(toInclude.getFirstChild(), toInclude);
       }
+      // 移除 sqlFragment
       toInclude.getParentNode().removeChild(toInclude);
     } else if (source.getNodeType() == Node.ELEMENT_NODE) {
       if (included && !variablesContext.isEmpty()) {
@@ -74,6 +77,7 @@ public class XMLIncludeTransformer {
         NamedNodeMap attributes = source.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
           Node attr = attributes.item(i);
+          // 替换所有${xxx}占位符(attribute属性)
           attr.setNodeValue(PropertyParser.parse(attr.getNodeValue(), variablesContext));
         }
       }
@@ -84,6 +88,7 @@ public class XMLIncludeTransformer {
     } else if (included && (source.getNodeType() == Node.TEXT_NODE || source.getNodeType() == Node.CDATA_SECTION_NODE)
         && !variablesContext.isEmpty()) {
       // replace variables in text node
+      // 替换所有${xxx}占位符(文本节点)
       source.setNodeValue(PropertyParser.parse(source.getNodeValue(), variablesContext));
     }
   }

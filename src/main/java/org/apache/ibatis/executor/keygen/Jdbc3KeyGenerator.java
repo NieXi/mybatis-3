@@ -42,6 +42,7 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
+ * 处理数据库自增主键，如 MySQL auto_increment
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
@@ -72,12 +73,13 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
     if (keyProperties == null || keyProperties.length == 0) {
       return;
     }
-    try (ResultSet rs = stmt.getGeneratedKeys()) {
+    try (ResultSet rs = stmt.getGeneratedKeys()) {// 通过 jdbc 来实现
       final ResultSetMetaData rsmd = rs.getMetaData();
       final Configuration configuration = ms.getConfiguration();
       if (rsmd.getColumnCount() < keyProperties.length) {
         // Error?
       } else {
+        // 赋值
         assignKeys(configuration, rs, rsmd, keyProperties, parameter);
       }
     } catch (Exception e) {
@@ -245,6 +247,7 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
       this.propertyName = propertyName;
     }
 
+    // 赋值操作
     protected void assign(ResultSet rs, Object param) {
       if (paramName != null) {
         // If paramName is set, param is ParamMap

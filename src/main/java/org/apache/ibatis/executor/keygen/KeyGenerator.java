@@ -21,6 +21,7 @@ import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 
 /**
+ * insert 时，返回数据库自增的主键
  * @author Clinton Begin
  */
 public interface KeyGenerator {

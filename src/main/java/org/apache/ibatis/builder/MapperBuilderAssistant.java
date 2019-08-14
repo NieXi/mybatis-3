@@ -170,7 +170,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .mode(parameterMode)
         .numericScale(numericScale)
         .typeHandler(typeHandlerInstance)
-        .build();
+        .build();//
   }
 
   public ResultMap addResultMap(
@@ -187,6 +187,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
       if (!configuration.hasResultMap(extend)) {
         throw new IncompleteElementException("Could not find a parent resultmap with id '" + extend + "'");
       }
+      // 处理继承关系
       ResultMap resultMap = configuration.getResultMap(extend);
       List<ResultMapping> extendedResultMappings = new ArrayList<>(resultMap.getResultMappings());
       extendedResultMappings.removeAll(resultMappings);
@@ -201,11 +202,13 @@ public class MapperBuilderAssistant extends BaseBuilder {
       if (declaresConstructor) {
         extendedResultMappings.removeIf(resultMapping -> resultMapping.getFlags().contains(ResultFlag.CONSTRUCTOR));
       }
+      // 合并
       resultMappings.addAll(extendedResultMappings);
     }
     ResultMap resultMap = new ResultMap.Builder(configuration, id, type, resultMappings, autoMapping)
         .discriminator(discriminator)
-        .build();
+        .build();// 进行分类
+    // 放到 configuration 中
     configuration.addResultMap(resultMap);
     return resultMap;
   }

@@ -100,6 +100,7 @@ public class ParameterMapping {
     }
 
     public ParameterMapping build() {
+      // 给每一个ParameterMapping绑定一个TypeHandler，且必须绑定
       resolveTypeHandler();
       validate();
       return parameterMapping;
@@ -125,6 +126,7 @@ public class ParameterMapping {
       if (parameterMapping.typeHandler == null && parameterMapping.javaType != null) {
         Configuration configuration = parameterMapping.configuration;
         TypeHandlerRegistry typeHandlerRegistry = configuration.getTypeHandlerRegistry();
+        // jdbcType 和 javaType 的转换
         parameterMapping.typeHandler = typeHandlerRegistry.getTypeHandler(parameterMapping.javaType, parameterMapping.jdbcType);
       }
     }

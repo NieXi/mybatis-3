@@ -150,6 +150,7 @@ public class Configuration {
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
 
+  // 存放 mapped statements 对应 Mapper.xml 中的 SQL 语句
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection")
       .conflictMessageProducer((savedValue, targetValue) ->
           ". please check " + savedValue.getResource() + " and " + targetValue.getResource());
@@ -159,8 +160,11 @@ public class Configuration {
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<>("Key Generators collection");
 
   protected final Set<String> loadedResources = new HashSet<>();
+  // 自定义的 sql 片段
   protected final Map<String, XNode> sqlFragments = new StrictMap<>("XML fragments parsed from previous mappers");
 
+  // mybaits 解析 mapper.xml 是按从上到下的顺序来的，所以存到前面元素需要等到后面的元素解析之后才能解析，incompleteXXX 用来临时保存
+  // org.apache.ibatis.builder.xml.XMLMapperBuilder.parse() 会最终解析未完成的元素
   protected final Collection<XMLStatementBuilder> incompleteStatements = new LinkedList<>();
   protected final Collection<CacheRefResolver> incompleteCacheRefs = new LinkedList<>();
   protected final Collection<ResultMapResolver> incompleteResultMaps = new LinkedList<>();
@@ -577,6 +581,7 @@ public class Configuration {
 
   public ParameterHandler newParameterHandler(MappedStatement mappedStatement, Object parameterObject, BoundSql boundSql) {
     ParameterHandler parameterHandler = mappedStatement.getLang().createParameterHandler(mappedStatement, parameterObject, boundSql);
+    // 注册拦截器
     parameterHandler = (ParameterHandler) interceptorChain.pluginAll(parameterHandler);
     return parameterHandler;
   }
@@ -584,12 +589,14 @@ public class Configuration {
   public ResultSetHandler newResultSetHandler(Executor executor, MappedStatement mappedStatement, RowBounds rowBounds, ParameterHandler parameterHandler,
       ResultHandler resultHandler, BoundSql boundSql) {
     ResultSetHandler resultSetHandler = new DefaultResultSetHandler(executor, mappedStatement, parameterHandler, resultHandler, boundSql, rowBounds);
+    // 注册拦截器
     resultSetHandler = (ResultSetHandler) interceptorChain.pluginAll(resultSetHandler);
     return resultSetHandler;
   }
 
   public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) {
     StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler, boundSql);
+    // 注册拦截器
     statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);
     return statementHandler;
   }
@@ -612,6 +619,7 @@ public class Configuration {
     if (cacheEnabled) {
       executor = new CachingExecutor(executor);
     }
+    // 注册拦截器
     executor = (Executor) interceptorChain.pluginAll(executor);
     return executor;
   }
@@ -947,11 +955,16 @@ public class Configuration {
             + (conflictMessageProducer == null ? "" : conflictMessageProducer.apply(super.get(key), value)));
       }
       if (key.contains(".")) {
-        final String shortKey = getShortName(key);
+        final String shortKey = getShortName(key);// 取短名称，即 id
         if (super.get(shortKey) == null) {
           super.put(shortKey, value);
-        } else {
+        } else {// 存长名称 namespace+id，对应的值为 Ambiguity，表示有歧义，所以对于不同 namespace 下相同的 id，要使用长名称
           super.put(shortKey, (V) new Ambiguity(shortKey));
+          // sqlSession.selectOne(id, 1);
+          // sqlSession.selectOne(namespace+id, 1);
+          // 推荐使用 mapper 接口的代理对象
+          // Mapper mapper =  sqlSession.getMapper(Mapper.class);
+          // mapper.id();
         }
       }
       return super.put(key, value);
@@ -963,7 +976,7 @@ public class Configuration {
       if (value == null) {
         throw new IllegalArgumentException(name + " does not contain value for " + key);
       }
-      if (value instanceof Ambiguity) {
+      if (value instanceof Ambiguity) {// 取到  Ambiguity  表明需要使用 namespace+id
         throw new IllegalArgumentException(((Ambiguity) value).getSubject() + " is ambiguous in " + name
             + " (try using the full name including the namespace, or rename one of the entries)");
       }

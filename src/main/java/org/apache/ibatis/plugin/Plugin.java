@@ -45,6 +45,7 @@ public class Plugin implements InvocationHandler {
     Class<?> type = target.getClass();
     Class<?>[] interfaces = getAllInterfaces(type, signatureMap);
     if (interfaces.length > 0) {
+      // 创建 JDK 代理
       return Proxy.newProxyInstance(
           type.getClassLoader(),
           interfaces,
@@ -57,7 +58,9 @@ public class Plugin implements InvocationHandler {
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
       Set<Method> methods = signatureMap.get(method.getDeclaringClass());
+      // 判断是否需要拦截
       if (methods != null && methods.contains(method)) {
+        // 回调
         return interceptor.intercept(new Invocation(target, method, args));
       }
       return method.invoke(target, args);

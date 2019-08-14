@@ -24,5 +24,9 @@ package org.apache.ibatis.mapping;
 public interface SqlSource {
 
   BoundSql getBoundSql(Object parameterObject);
-
+  // DynamicSqlSource 处理动态 SQL
+  // RawSqlSource 处理静态 SQL 内部是 StaticSqlSource
+  // StaticSqlSource 处理静态 SQL
+  // ProviderSqlSource 处理注解形式的 SQL
+  // 最终都是转换成静态 SQL 处理
 }

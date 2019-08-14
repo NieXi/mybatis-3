@@ -16,6 +16,7 @@
 package org.apache.ibatis.scripting.xmltags;
 
 /**
+ * 处理 bind 标签
  * @author Frank D. Martinez [mnesarco]
  */
 public class VarDeclSqlNode implements SqlNode {
@@ -31,6 +32,7 @@ public class VarDeclSqlNode implements SqlNode {
   @Override
   public boolean apply(DynamicContext context) {
     final Object value = OgnlCache.getValue(expression, context.getBindings());
+    // 由于没有 SQL可 append，仅是把 bind 标签的变量名和值保存至上下文参数列表中
     context.bind(name, value);
     return true;
   }

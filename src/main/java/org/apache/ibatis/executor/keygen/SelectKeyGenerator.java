@@ -27,6 +27,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.RowBounds;
 
 /**
+ * 用于处理不支持自增主键的情况，如 Oracle 的 sequence 序列
  * @author Clinton Begin
  * @author Jeff Butler
  */

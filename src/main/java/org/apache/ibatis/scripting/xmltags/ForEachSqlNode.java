@@ -28,6 +28,7 @@ public class ForEachSqlNode implements SqlNode {
 
   private final ExpressionEvaluator evaluator;
   private final String collectionExpression;
+
   private final SqlNode contents;
   private final String open;
   private final String close;

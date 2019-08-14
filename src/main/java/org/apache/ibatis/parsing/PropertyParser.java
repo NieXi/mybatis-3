@@ -23,6 +23,9 @@ import java.util.Properties;
  */
 public class PropertyParser {
 
+  /**
+   *  解析 ${v} 占位符
+   */
   private static final String KEY_PREFIX = "org.apache.ibatis.parsing.PropertyParser.";
   /**
    * The special property key that indicate whether enable a default value on placeholder.
@@ -73,6 +76,7 @@ public class PropertyParser {
 
     @Override
     public String handleToken(String content) {
+      // 处理 ${xxx}
       if (variables != null) {
         String key = content;
         if (enableDefaultValue) {

@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.ibatis.session.SqlSession;
 
 /**
+ * 创建 Mapper 接口的代理
  * @author Lasse Voss
  */
 public class MapperProxyFactory<T> {

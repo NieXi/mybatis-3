@@ -466,6 +466,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   private Object getPropertyMappingValue(ResultSet rs, MetaObject metaResultObject, ResultMapping propertyMapping, ResultLoaderMap lazyLoader, String columnPrefix)
       throws SQLException {
     if (propertyMapping.getNestedQueryId() != null) {
+      // 执行另外一个select查询，把查询结果赋值给属性值，比如Student对象的teacher属性。
       return getNestedQueryMappingValue(rs, metaResultObject, propertyMapping, lazyLoader, columnPrefix);
     } else if (propertyMapping.getResultSet() != null) {
       addPendingChildRelation(rs, metaResultObject, propertyMapping);   // TODO is that OK?
@@ -757,11 +758,17 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         executor.deferLoad(nestedQuery, metaResultObject, property, key, targetType);
         value = DEFERRED;
       } else {
+        // ResultLoader保存了关联查询所需要的所有信息
         final ResultLoader resultLoader = new ResultLoader(configuration, executor, nestedQuery, nestedQueryParameterObject, targetType, key, nestedBoundSql);
         if (propertyMapping.isLazy()) {
+          // 执行延迟加载
+          // 语意：resultLoader的查询结果将赋值给metaResultObject源对象的property属性,resultLoader的查询参数值来自于metaResultObject源对象属性中。
+          // 举例：查询Teacher，赋值给Student的teacher属性，参数来自于查询Student的ResultSet的teacher_id列的值。
+          // 由于需要执行延迟加载，将查询相关信息放入缓存，但不执行查询，使用该属性时，自动触发加载操作。
           lazyLoader.addLoader(property, metaResultObject, resultLoader);
           value = DEFERRED;
         } else {
+          // 不执行延迟加载，立即查询并赋值
           value = resultLoader.loadResult();
         }
       }
@@ -855,6 +862,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   // HANDLE NESTED RESULT MAPS
   //
 
+  // 处理一对多查询的结果，一的那一端去重
   private void handleRowValuesForNestedResultMap(ResultSetWrapper rsw, ResultMap resultMap, ResultHandler<?> resultHandler, RowBounds rowBounds, ResultMapping parentMapping) throws SQLException {
     final DefaultResultContext<Object> resultContext = new DefaultResultContext<>();
     ResultSet resultSet = rsw.getResultSet();
@@ -909,6 +917,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         }
         foundValues = applyPropertyMappings(rsw, resultMap, metaObject, lazyLoader, columnPrefix) || foundValues;
         putAncestor(rowValue, resultMapId);
+        // 解析NestedResultMappings并封装结果，赋值给源对象的关联查询属性上
         foundValues = applyNestedResultMappings(rsw, resultMap, metaObject, columnPrefix, combinedKey, true) || foundValues;
         ancestorObjects.remove(resultMapId);
         foundValues = lazyLoader.size() > 0 || foundValues;

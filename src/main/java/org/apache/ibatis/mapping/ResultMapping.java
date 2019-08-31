@@ -28,6 +28,8 @@ import org.apache.ibatis.type.TypeHandlerRegistry;
 /**
  * @author Clinton Begin
  */
+
+// ResultMap 标签下的 association 标签解析为 ResultMapping
 public class ResultMapping {
 
   private Configuration configuration;
@@ -37,7 +39,7 @@ public class ResultMapping {
   private JdbcType jdbcType;
   private TypeHandler<?> typeHandler;
   private String nestedResultMapId;
-  private String nestedQueryId;
+  private String nestedQueryId;  // 存储另外一个查询的 ID
   private Set<String> notNullColumns;
   private String columnPrefix;
   private List<ResultFlag> flags;

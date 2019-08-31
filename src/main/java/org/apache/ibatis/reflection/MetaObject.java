@@ -28,6 +28,7 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 
 /**
+ * 用于反射创建对象、反射从对象中获取属性值、反射给对象设置属性值
  * @author Clinton Begin
  */
 public class MetaObject {
@@ -57,6 +58,14 @@ public class MetaObject {
     }
   }
 
+  /**
+   *
+   * @param object 要反射的对象
+   * @param objectFactory 上面对象的工厂
+   * @param objectWrapperFactory  对反射的对象进行包装
+   * @param reflectorFactory 缓存反射结果
+   * @return
+   */
   public static MetaObject forObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {
     if (object == null) {
       return SystemMetaObject.NULL_META_OBJECT;
@@ -109,6 +118,8 @@ public class MetaObject {
     return objectWrapper.hasGetter(name);
   }
 
+  // 取值
+  // org.apache.ibatis.scripting.defaults.DefaultParameterHandler 81 行
   public Object getValue(String name) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
@@ -123,6 +134,7 @@ public class MetaObject {
     }
   }
 
+  // 赋值
   public void setValue(String name, Object value) {
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {

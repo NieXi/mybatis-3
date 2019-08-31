@@ -68,6 +68,7 @@ public class ResultLoader {
 
   public Object loadResult() throws SQLException {
     List<Object> list = selectList();
+    // 处理
     resultObject = resultExtractor.extractObjectFromList(list, targetType);
     return resultObject;
   }

@@ -45,10 +45,15 @@ public class MapperProxyFactory<T> {
 
   @SuppressWarnings("unchecked")
   protected T newInstance(MapperProxy<T> mapperProxy) {
+    //  JDK 动态代理，参数：mapper 接口的类加载器，接口，InvocationHandler，里面有接口方法的调用处理
     return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] { mapperInterface }, mapperProxy);
   }
 
   public T newInstance(SqlSession sqlSession) {
+    // 创建 InvocationHandler 也就是 MapperProxy (关注其 invoke 方法)
+    // 因为没有实现 mapper 接口的被代理对象，所以 MyBatis 只有代理对象
+    // 当调用代理对象的方法时，并没有 JDK 动态代理常见的 method.invoke(target, args);
+    // 因为没有被代理对象 target，sql 操作通过 sqlSession 来完成，只要返回的接口符合接口定义即可，调用者不需关心方法调用到返回结果中发生了什么
     final MapperProxy<T> mapperProxy = new MapperProxy<>(sqlSession, mapperInterface, methodCache);
     return newInstance(mapperProxy);
   }

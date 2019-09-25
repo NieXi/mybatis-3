@@ -41,7 +41,7 @@ public class Plugin implements InvocationHandler {
   }
 
   public static Object wrap(Object target, Interceptor interceptor) {
-    Map<Class<?>, Set<Method>> signatureMap = getSignatureMap(interceptor);
+    Map<Class<?>, Set<Method>> signatureMap = getSignatureMap(interceptor);// 将拦截器上的注解中标记的类的方法拿到
     Class<?> type = target.getClass();
     Class<?>[] interfaces = getAllInterfaces(type, signatureMap);
     if (interfaces.length > 0) {
@@ -49,18 +49,25 @@ public class Plugin implements InvocationHandler {
       return Proxy.newProxyInstance(
           type.getClassLoader(),
           interfaces,
-          new Plugin(target, interceptor, signatureMap));
+          new Plugin(target, interceptor, signatureMap));// 带有插件
     }
     return target;
   }
 
+  /**
+   * @param proxy 代理对象，未使用
+   * @param method 被调用的方法的 Class 对象，接口中定义的某个方法
+   * @param args 上面方法的参数
+   */
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
       Set<Method> methods = signatureMap.get(method.getDeclaringClass());
       // 判断是否需要拦截
       if (methods != null && methods.contains(method)) {
-        // 回调
+        // 回调，创建一个 MyBaits 的 Invocation，包含被代理对象(原始对象)，被调方法 Class 对象，及方法参数
+        // invocation 中用 proceed 包装了 method.invoke(target, args)
+        // 自定义的拦截器来做原始方法调用前后的一些处理
         return interceptor.intercept(new Invocation(target, method, args));
       }
       return method.invoke(target, args);

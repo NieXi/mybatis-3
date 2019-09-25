@@ -60,9 +60,9 @@ public class PreparedStatementHandler extends BaseStatementHandler {
 
   @Override
   public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
-    PreparedStatement ps = (PreparedStatement) statement;
-    ps.execute();
-    return resultSetHandler.handleResultSets(ps);
+    PreparedStatement ps = (PreparedStatement) statement;// pstmt 是 stmt 的子类
+    ps.execute();// 真正的语句执行
+    return resultSetHandler.handleResultSets(ps); // resultSetHandler 也是 MyBatis 核心对象，处理 ResultSet
   }
 
   @Override

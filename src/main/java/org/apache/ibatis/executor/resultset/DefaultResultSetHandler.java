@@ -175,7 +175,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   }
 
   //
-  // HANDLE RESULT SETS
+  // HANDLE RESULT SETS 处理 JDBC  ResultSet
   //
   @Override
   public List<Object> handleResultSets(Statement stmt) throws SQLException {
@@ -184,7 +184,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     final List<Object> multipleResults = new ArrayList<>();
 
     int resultSetCount = 0;
-    ResultSetWrapper rsw = getFirstResultSet(stmt);
+    ResultSetWrapper rsw = getFirstResultSet(stmt); // 包装结果
 
     List<ResultMap> resultMaps = mappedStatement.getResultMaps();
     int resultMapCount = resultMaps.size();
@@ -234,7 +234,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   }
 
   private ResultSetWrapper getFirstResultSet(Statement stmt) throws SQLException {
-    ResultSet rs = stmt.getResultSet();
+    ResultSet rs = stmt.getResultSet();// 拿到实际 SQL 执行的结果
     while (rs == null) {
       // move forward to get the first resultset in case the driver
       // doesn't return the resultset as the first result (HSQLDB 2.1)
@@ -297,6 +297,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         handleRowValues(rsw, resultMap, null, RowBounds.DEFAULT, parentMapping);
       } else {
         if (resultHandler == null) {
+          // 用默认的结果处理器，还有 objectFactory 用来创建结果的 pojo
           DefaultResultHandler defaultResultHandler = new DefaultResultHandler(objectFactory);
           handleRowValues(rsw, resultMap, defaultResultHandler, rowBounds, null);
           multipleResults.add(defaultResultHandler.getResultList());

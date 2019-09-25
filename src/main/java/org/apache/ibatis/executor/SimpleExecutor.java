@@ -58,9 +58,11 @@ public class SimpleExecutor extends BaseExecutor {
     Statement stmt = null;
     try {
       Configuration configuration = ms.getConfiguration();
+      // 根据配置创建 StatementHandler 核心对象之一
       StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
+      // 预处理，拿到 JDBC 中的 stmt，这个就是 JDBC 编程中熟悉的对象
       stmt = prepareStatement(handler, ms.getStatementLog());
-      return handler.query(stmt, resultHandler);
+      return handler.query(stmt, resultHandler);// 做实际的查询，以 PreparedStatementHandler.query 为例
     } finally {
       closeStatement(stmt);
     }
@@ -82,9 +84,9 @@ public class SimpleExecutor extends BaseExecutor {
 
   private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
     Statement stmt;
-    Connection connection = getConnection(statementLog);
-    stmt = handler.prepare(connection, transaction.getTimeout());
-    handler.parameterize(stmt);
+    Connection connection = getConnection(statementLog); // 拿到数据库连接
+    stmt = handler.prepare(connection, transaction.getTimeout());// 拿到 jdbc 中 stmt
+    handler.parameterize(stmt);// 处理参数，由 ParameterHandler 来处理
     return stmt;
   }
 

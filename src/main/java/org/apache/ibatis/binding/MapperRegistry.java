@@ -47,7 +47,7 @@ public class MapperRegistry {
       throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
     }
     try {
-      return mapperProxyFactory.newInstance(sqlSession);
+      return mapperProxyFactory.newInstance(sqlSession);// 创建代理对象
     } catch (Exception e) {
       throw new BindingException("Error getting mapper instance. Cause: " + e, e);
     }

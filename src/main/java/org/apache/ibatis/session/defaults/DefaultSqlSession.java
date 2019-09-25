@@ -143,7 +143,9 @@ public class DefaultSqlSession implements SqlSession {
   @Override
   public <E> List<E> selectList(String statement, Object parameter, RowBounds rowBounds) {
     try {
-      MappedStatement ms = configuration.getMappedStatement(statement);
+      MappedStatement ms = configuration.getMappedStatement(statement);// MappedStatement 包含解析出来的增删该查的节点
+      // wrapCollection 用来处理集合或数组类型的参数
+      // 通过 executor 执行查询，这里以 SimpleExecutor.doQuery 为例
       return executor.query(ms, wrapCollection(parameter), rowBounds, Executor.NO_RESULT_HANDLER);
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error querying database.  Cause: " + e, e);
@@ -288,7 +290,7 @@ public class DefaultSqlSession implements SqlSession {
 
   @Override
   public <T> T getMapper(Class<T> type) {
-    return configuration.getMapper(type, this);
+    return configuration.getMapper(type, this); // 去 configuration 中拿到代理对象
   }
 
   @Override

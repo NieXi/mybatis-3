@@ -77,7 +77,7 @@ public class MapperMethod {
           executeWithResultHandler(sqlSession, args);
           result = null;
         } else if (method.returnsMany()) {
-          result = executeForMany(sqlSession, args);
+          result = executeForMany(sqlSession, args);// 以查询为例
         } else if (method.returnsMap()) {
           result = executeForMap(sqlSession, args);
         } else if (method.returnsCursor()) {
@@ -142,7 +142,7 @@ public class MapperMethod {
     Object param = method.convertArgsToSqlCommandParam(args);
     if (method.hasRowBounds()) {
       RowBounds rowBounds = method.extractRowBounds(args);
-      result = sqlSession.selectList(command.getName(), param, rowBounds);
+      result = sqlSession.selectList(command.getName(), param, rowBounds);// 通过 SqlSession 来做查询操作
     } else {
       result = sqlSession.selectList(command.getName(), param);
     }

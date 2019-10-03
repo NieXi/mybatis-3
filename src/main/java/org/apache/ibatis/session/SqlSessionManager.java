@@ -35,16 +35,18 @@ import org.apache.ibatis.reflection.ExceptionUtil;
 public class SqlSessionManager implements SqlSessionFactory, SqlSession {
 
   private final SqlSessionFactory sqlSessionFactory;
+  // 这是 SqlSession 的代理对象
   private final SqlSession sqlSessionProxy;
-
+ // 线程局部变量 SqlSession
   private final ThreadLocal<SqlSession> localSqlSession = new ThreadLocal<>();
 
   private SqlSessionManager(SqlSessionFactory sqlSessionFactory) {
     this.sqlSessionFactory = sqlSessionFactory;
+    // 创建代理
     this.sqlSessionProxy = (SqlSession) Proxy.newProxyInstance(
         SqlSessionFactory.class.getClassLoader(),
         new Class[]{SqlSession.class},
-        new SqlSessionInterceptor());
+        new SqlSessionInterceptor());// InvocationHandler 拦截 SqlSession 接口的方法
   }
 
   public static SqlSessionManager newInstance(Reader reader) {
